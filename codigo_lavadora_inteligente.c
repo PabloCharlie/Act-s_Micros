@@ -145,7 +145,7 @@ volatile unsigned char flag_inicio = 0;
 volatile unsigned char flag_pausa_play = 0;
 
 void __interrupt() Interrupcion_Lavadora(void){
-    // Evento por pulsación en RB0 (Boton_Ajuste vía INT0)
+    // Evento por pulsación en RB0 (Boton_Ajuste por INT0)
     if (INT0IF){
         flag_ajuste = 1; // Levanta la bandera para atenderla en el main
         INT0IF = 0;      // Borra la bandera de inmediato

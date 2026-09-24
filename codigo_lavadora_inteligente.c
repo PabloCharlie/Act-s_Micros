@@ -84,12 +84,12 @@
 char data[16];
 
 void Init_Ports(){
-    ADCON1 = 0x0F;          // Apagar lecturas analógicas (Todos los pines a DIGITAL)
+    ADCON1 = 0x0F;  // Apagar lecturas analógicas (Todos los pines a DIGITAL)
     
     //Entradas de la lavadora Puerto B
-    TRISB0 = 1;                     // Entrada Botón Ajuste
-    TRISB1 = 1;                     // Entrada Botón Inicio / Continuar
-    TRISB2 = 1;                     // Entrada Sensor de Puerta
+    TRISB0 = 1;    // Entrada Botón Ajuste
+    TRISB1 = 1;   // Entrada Botón Inicio / Continuar
+    TRISB2 = 1;  // Entrada Sensor de Puerta
     TRISB3 = 1;
     TRISB4 = 0;
     TRISB5 = 0;
@@ -98,7 +98,7 @@ void Init_Ports(){
     
     //Salidas de la lavadora Puerto C
     TRISC0 = 0;                     // Salida Candado
-    TRISC1 = 0;                     // Salida Zumbador
+    TRISC1 = 0;                     // Salida BUZZER
     TRISC2 = 0;                     // Salida Drenado
     TRISA0 = 0;                     // Salida Valvula de agua
     TRISC6 = 0;                     // Salida MotorH
@@ -139,7 +139,7 @@ void Enable_Interrupts(){
     INT1IE = 0;     // Limpia pulsaciones fantasma acumuladas durante el lavado
 }                    //Se usa IF, no IE, para no desactivar el botón
 
-// Declaración de banderas globales (colócalas arriba de las funciones)
+// Declaración de banderas globales
 volatile unsigned char flag_ajuste = 0;
 volatile unsigned char flag_inicio = 0;
 volatile unsigned char flag_pausa_play = 0;
@@ -148,10 +148,10 @@ void __interrupt() Interrupcion_Lavadora(void){
     // Evento por pulsación en RB0 (Boton_Ajuste vía INT0)
     if (INT0IF){
         flag_ajuste = 1; // Levanta la bandera para atenderla en el main
-        INT0IF = 0;      // Borra la bandera de hardware de inmediato
+        INT0IF = 0;      // Borra la bandera de inmediato
     }
 
-    // Evento por pulsación en RB1 (Boton_Inicio vía INT1)
+    // Evento por pulsación en RB1 (Boton_Inicio por INT1)
     if (INT1IF){
         flag_inicio = 1; // Levanta la bandera para atenderla en el main
         INT1IF = 0;      // Borra la bandera de hardware de inmediato
@@ -162,19 +162,19 @@ void __interrupt() Interrupcion_Lavadora(void){
 void Pausa_Boton(void){
     // Verifica si el botón fue presionado (recibe 0V)
     if (BOTON_PAUSA_PLAY == 0) { 
-        __delay_ms(50); // Filtro anti-rebote
+        __delay_ms(50); //Dejar presionado el boton para hacer pausa
         if (BOTON_PAUSA_PLAY == 0) {
             Lcd_CmdWrite(ClrScreen);
             Lcd_CmdWrite(FirstLine);
             Message_LCD("   LAVADORA   ");
             Lcd_CmdWrite(SecondLine);
             Message_LCD("   EN PAUSA   ");
-            // 1. Espera a que sueltes el botón para no registrar múltiples toques
+            // 1. Espera a que se suelte el botón para no registrar múltiples toques
             while(BOTON_PAUSA_PLAY == 0);
             __delay_ms(50);
-            // 2. CONGELA LA LAVADORA aquí hasta que vuelvas a presionar
+            // 2. CONGELA LA LAVADORA aquí hasta que se vuelva a presionar
             while(BOTON_PAUSA_PLAY == 1);
-            // 3. Espera a que sueltes el botón nuevamente para continuar
+            // 3. Espera a que se suelte el boton otra vez para continuar
             while(BOTON_PAUSA_PLAY == 0);
             __delay_ms(50);
             Lcd_CmdWrite(ClrScreen);
@@ -511,10 +511,12 @@ void main(void) {
                 }
             }
             
-            flag_inicio = 0;
-            INT1IF = 0;
+            flag_inicio = 0; // Estas dos líneas se utilizan para limpiar banderas
+            INT1IF = 0;     // y reiniciar estados del sistema para que quede listo para un nuevo ciclo o evento
+                            // Esto es para que cuando se haga una seleccion de lavado o un cambio de modo de lavado
+                            // el Boton_Incicio siga siendo un boton de confirmacion   
             
-        } // Fin del if (flag_inicio == 1 || Boton_Inicio == 0)
+        }
         
-    } // Fin del while(1)
+    }
 }

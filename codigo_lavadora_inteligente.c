@@ -145,7 +145,7 @@ volatile unsigned char flag_inicio = 0;
 volatile unsigned char flag_pausa_play = 0;
 
 void __interrupt() Interrupcion_Lavadora(void){
-    // Evento por pulsación en RB0 (Boton_Ajuste por INT0)
+    // Evento por pulsación en RB0 (Boton_Ajuste vía INT0)
     if (INT0IF){
         flag_ajuste = 1; // Levanta la bandera para atenderla en el main
         INT0IF = 0;      // Borra la bandera de inmediato
@@ -191,7 +191,7 @@ void Msg_Error(void){
     __delay_ms(1550);
 }
 
-// TODAS LAS ANIMACIONES FUERON HECHAS POR IA, PERO LA ESTRUCTURA ES PROPIA
+// LAS ANIMACIONES DE BOCINA, GOTA DE AGUA, CANDADO Y UN EFECTO DE OLA FUERON HECHAS POR IA, PERO LA ESTRUCTURA ES PROPIA
 // POR ESO NO SE VE TAN HECHO POR UNA IA YA QUE TIENE LA ESTRUCTURA TIPICA QUE SE USA PARA LA LCD
 
 // Animación del Candado (0 = Abierto, 1 = Cerrado)
@@ -236,7 +236,7 @@ void Anim_Valvula_Agua(void){
     __delay_ms(200);
 }
 
-// Animación Drenado (Olas de agua fluyendo)
+// Animación Drenado (Gotas de agua))
 void Anim_Drenado(void){
     Lcd_CmdWrite(ClrScreen);
     Lcd_CmdWrite(FirstLine);
@@ -311,7 +311,7 @@ void Anim_Enjuague(void){
     __delay_ms(200);
 }
 
-// Animación Modo Centrifugado (Giro rápido)
+// Animación Modo Centrifugado
 void Anim_Centrifugado(void){
     Lcd_CmdWrite(ClrScreen);
     Lcd_CmdWrite(FirstLine);
